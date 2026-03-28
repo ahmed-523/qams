@@ -14,7 +14,7 @@ return new class extends Migration
             $table->foreignId('teacher_id')->constrained('users')->onDelete('cascade');
             $table->text('question_text');
             $table->enum('question_type', ['mcq', 'true_false', 'short']);
-            $table->json('options')->nullable();
+            $table->text('options')->nullable();
             $table->string('correct_answer');
             $table->unsignedInteger('marks')->default(1);
             $table->timestamps();

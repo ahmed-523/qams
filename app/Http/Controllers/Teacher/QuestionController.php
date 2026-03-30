@@ -36,20 +36,22 @@ class QuestionController extends Controller
 
     public function store(Request $request)
     {
+        // ✅ FIXED VALIDATION: options.* ab sirf MCQ ke liye required honge
         $request->validate([
             'subject_id'     => 'required|exists:subjects,id',
             'question_text'  => 'required|string',
             'question_type'  => 'required|in:mcq,true_false,short',
             'correct_answer' => 'required|string',
             'marks'          => 'required|integer|min:1',
-            'options'        => 'nullable|array',
-            'options.*'      => 'string',
+            'options'        => 'required_if:question_type,mcq|array',
+            'options.*'      => 'required_if:question_type,mcq|string', 
         ]);
 
         $options = null;
         if ($request->question_type === 'mcq') {
             $options = array_filter($request->options ?? []);
         } elseif ($request->question_type === 'true_false') {
+            // ✅ True/False ke liye automatic options set kar diye
             $options = ['True', 'False'];
         }
 
@@ -78,6 +80,8 @@ class QuestionController extends Controller
             'question_text'  => 'required|string',
             'correct_answer' => 'required|string',
             'marks'          => 'required|integer|min:1',
+            'options'        => 'required_if:question_type,mcq|array',
+            'options.*'      => 'required_if:question_type,mcq|string',
         ]);
 
         $options = $question->options;

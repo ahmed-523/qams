@@ -129,12 +129,18 @@ document.addEventListener('DOMContentLoaded', function () {
     function toggleOptions() {
         var type = qType.value;
 
+        // Reset everything first
         [answerMcq, answerTf].forEach(function (el) {
             el.style.display = 'none';
             el.removeAttribute('required');
             el.name = '';
         });
-        optionInputs.forEach(function (el) { el.removeAttribute('required'); });
+        
+        optionInputs.forEach(function (el) { 
+            el.removeAttribute('required'); 
+            el.name = ''; // Clear name to avoid sending empty strings
+        });
+        
         mcqOptions.style.display = 'none';
         answerHint.textContent   = '';
 
@@ -143,7 +149,12 @@ document.addEventListener('DOMContentLoaded', function () {
             answerMcq.style.display  = 'block';
             answerMcq.setAttribute('required', 'required');
             answerMcq.name = 'correct_answer';
-            optionInputs.forEach(function (el) { el.setAttribute('required', 'required'); });
+            
+            optionInputs.forEach(function (el) { 
+                el.setAttribute('required', 'required'); 
+                el.name = 'options[]'; // Add name back for MCQs
+            });
+            
             answerHint.textContent = 'Select one of the 4 options as correct.';
             syncMcqDropdown();
         } else if (type === 'true_false') {

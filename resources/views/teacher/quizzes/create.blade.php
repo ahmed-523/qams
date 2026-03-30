@@ -48,14 +48,17 @@
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Class *</label>
-                    <select name="class_id" class="form-select" required id="class-select">
-                        <option value="">-- Select Class --</option>
+                    {{-- Hidden input to actually submit the value since disabled fields are not submitted --}}
+                    <input type="hidden" name="class_id" id="class-id-hidden" value="{{ old('class_id') }}">
+                    <select class="form-select" id="class-select" disabled>
+                        <option value="">-- Auto-filled from Subject --</option>
                         @foreach($classes as $class)
                             <option value="{{ $class->id }}" {{ old('class_id') == $class->id ? 'selected' : '' }}>
                                 {{ $class->name }}
                             </option>
                         @endforeach
                     </select>
+                    <small class="text-muted">Class is automatically set based on selected subject.</small>
                 </div>
             </div>
 
@@ -96,18 +99,30 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    var subjectSelect = document.getElementById('subject-select');
-    var numInput      = document.getElementById('number-of-questions');
-    var checkBtn      = document.getElementById('check-btn');
-    var resultBox     = document.getElementById('bank-check-result');
-    var submitBtn     = document.getElementById('submit-btn');
-    var CSRF_TOKEN    = '{{ csrf_token() }}';
-    var CHECK_URL     = '{{ route("teacher.quizzes.checkQuestions") }}';
-    var ADD_Q_URL     = '{{ route("teacher.questions.create") }}';
+    var subjectSelect  = document.getElementById('subject-select');
+    var classSelect    = document.getElementById('class-select');
+    var classIdHidden  = document.getElementById('class-id-hidden');
+    var numInput       = document.getElementById('number-of-questions');
+    var checkBtn       = document.getElementById('check-btn');
+    var resultBox      = document.getElementById('bank-check-result');
+    var submitBtn      = document.getElementById('submit-btn');
+    var CSRF_TOKEN     = '{{ csrf_token() }}';
+    var CHECK_URL      = '{{ route("teacher.quizzes.checkQuestions") }}';
+    var ADD_Q_URL      = '{{ route("teacher.questions.create") }}';
 
     subjectSelect.addEventListener('change', function () {
-        var classId = this.options[this.selectedIndex].getAttribute('data-class');
-        if (classId) document.getElementById('class-select').value = classId;
+        var selected = this.options[this.selectedIndex];
+        var classId  = selected ? selected.getAttribute('data-class') : null;
+
+        if (classId) {
+            // Set the visible disabled dropdown
+            classSelect.value = classId;
+            // Set the hidden input that actually submits
+            classIdHidden.value = classId;
+        } else {
+            classSelect.value   = '';
+            classIdHidden.value = '';
+        }
         resetCheck();
     });
 

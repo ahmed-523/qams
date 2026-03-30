@@ -62,7 +62,7 @@
                            value="{{ old('number_of_questions') }}"
                            required>
                     <button type="button" class="btn btn-outline-secondary" id="check-btn">
-                        <i class="bi bi-search me-1"></i> Check Bank
+                        <i class="bi bi-search me-1"></i> Check Question Bank
                     </button>
                 </div>
                 @error('number_of_questions')

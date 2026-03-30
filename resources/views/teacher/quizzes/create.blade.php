@@ -27,39 +27,27 @@
         <form action="{{ route('teacher.quizzes.store') }}" method="POST" id="quiz-form">
             @csrf
 
+            {{-- Class ID hidden - auto set from subject --}}
+            <input type="hidden" name="class_id" id="class-id-hidden" value="{{ old('class_id') }}">
+
             <div class="mb-3">
                 <label class="form-label">Quiz Title *</label>
                 <input type="text" name="title" class="form-control" required value="{{ old('title') }}">
             </div>
 
-            <div class="row g-3 mb-3">
-                <div class="col-md-6">
-                    <label class="form-label">Subject *</label>
-                    <select name="subject_id" class="form-select" required id="subject-select">
-                        <option value="">-- Select Subject --</option>
-                        @foreach($subjects as $subject)
-                            <option value="{{ $subject->id }}"
-                                data-class="{{ $subject->class_id }}"
-                                {{ old('subject_id') == $subject->id ? 'selected' : '' }}>
-                                {{ $subject->name }} ({{ $subject->class->name ?? '' }})
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Class *</label>
-                    {{-- Hidden input to actually submit the value since disabled fields are not submitted --}}
-                    <input type="hidden" name="class_id" id="class-id-hidden" value="{{ old('class_id') }}">
-                    <select class="form-select" id="class-select" disabled>
-                        <option value="">-- Auto-filled from Subject --</option>
-                        @foreach($classes as $class)
-                            <option value="{{ $class->id }}" {{ old('class_id') == $class->id ? 'selected' : '' }}>
-                                {{ $class->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <small class="text-muted">Class is automatically set based on selected subject.</small>
-                </div>
+            <div class="mb-3">
+                <label class="form-label">Subject *</label>
+                <select name="subject_id" class="form-select" required id="subject-select">
+                    <option value="">-- Select Subject --</option>
+                    @foreach($subjects as $subject)
+                        <option value="{{ $subject->id }}"
+                            data-class="{{ $subject->class_id }}"
+                            {{ old('subject_id') == $subject->id ? 'selected' : '' }}>
+                            {{ $subject->name }} ({{ $subject->class->name ?? '' }})
+                        </option>
+                    @endforeach
+                </select>
+                <small class="text-muted">Class will be automatically set from subject.</small>
             </div>
 
             <div class="mb-3">
@@ -99,30 +87,20 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    var subjectSelect  = document.getElementById('subject-select');
-    var classSelect    = document.getElementById('class-select');
-    var classIdHidden  = document.getElementById('class-id-hidden');
-    var numInput       = document.getElementById('number-of-questions');
-    var checkBtn       = document.getElementById('check-btn');
-    var resultBox      = document.getElementById('bank-check-result');
-    var submitBtn      = document.getElementById('submit-btn');
-    var CSRF_TOKEN     = '{{ csrf_token() }}';
-    var CHECK_URL      = '{{ route("teacher.quizzes.checkQuestions") }}';
-    var ADD_Q_URL      = '{{ route("teacher.questions.create") }}';
+    var subjectSelect = document.getElementById('subject-select');
+    var classIdHidden = document.getElementById('class-id-hidden');
+    var numInput      = document.getElementById('number-of-questions');
+    var checkBtn      = document.getElementById('check-btn');
+    var resultBox     = document.getElementById('bank-check-result');
+    var submitBtn     = document.getElementById('submit-btn');
+    var CSRF_TOKEN    = '{{ csrf_token() }}';
+    var CHECK_URL     = '{{ route("teacher.quizzes.checkQuestions") }}';
+    var ADD_Q_URL     = '{{ route("teacher.questions.create") }}';
 
     subjectSelect.addEventListener('change', function () {
         var selected = this.options[this.selectedIndex];
         var classId  = selected ? selected.getAttribute('data-class') : null;
-
-        if (classId) {
-            // Set the visible disabled dropdown
-            classSelect.value = classId;
-            // Set the hidden input that actually submits
-            classIdHidden.value = classId;
-        } else {
-            classSelect.value   = '';
-            classIdHidden.value = '';
-        }
+        classIdHidden.value = classId ? classId : '';
         resetCheck();
     });
 

@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 submitBtn.disabled = false;
             } else {
                 showResult('danger',
-                    '&#10007; Need <strong>' + data.requested + '</strong> but only <strong>' +
+                    '&#10007; Need atleast <strong>' + data.requested + '</strong> questions but only <strong>' +
                     data.available + '</strong> exist. <a href="' + ADD_Q_URL + '" class="alert-link">Add more &rarr;</a>');
                 submitBtn.disabled = true;
             }

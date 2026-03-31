@@ -41,10 +41,12 @@
             <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">Sign In</button>
         </form>
 
+        @if(!\App\Models\User::where('role', 'admin')->exists())
         <div class="text-center">
             <span class="text-muted small">First time? &nbsp;</span>
             <a href="{{ route('setup') }}" class="btn btn-outline-secondary btn-sm">Create Admin Account</a>
         </div>
+        @endif
     </div>
 </body>
 </html>

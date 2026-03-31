@@ -181,7 +181,73 @@
     margin-top: 14px;
     display: none;
 }
+
+/* Custom Modal */
+.custom-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(3px);
+}
+.custom-overlay.show { display: flex; animation: overlayIn 0.2s ease; }
+@keyframes overlayIn { from{opacity:0} to{opacity:1} }
+
+.custom-modal {
+    background: white;
+    border-radius: 20px;
+    padding: 36px 32px;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    animation: modalIn 0.25s ease;
+}
+@keyframes modalIn { from{transform:scale(0.85);opacity:0} to{transform:scale(1);opacity:1} }
+
+.modal-icon {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 1.8rem;
+}
+.modal-icon.green { background: #d1fae5; color: #059669; }
+.modal-icon.orange { background: #fff3cd; color: #d97706; }
+
+.modal-title { font-size: 1.2rem; font-weight: 700; color: #1a1a2e; margin-bottom: 8px; }
+.modal-msg   { font-size: 0.9rem; color: #6c757d; margin-bottom: 24px; line-height: 1.5; }
+
+.modal-btns  { display: flex; gap: 12px; justify-content: center; }
+.modal-btn {
+    padding: 10px 28px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.modal-btn.cancel { background: #f1f3f5; color: #495057; }
+.modal-btn.cancel:hover { background: #dee2e6; }
+.modal-btn.confirm { background: #198754; color: white; }
+.modal-btn.confirm:hover { background: #157347; }
 </style>
+
+{{-- Custom Confirm Modal --}}
+<div class="custom-overlay" id="submit-overlay">
+    <div class="custom-modal">
+        <div class="modal-icon" id="modal-icon">✅</div>
+        <div class="modal-title" id="modal-title">Submit Quiz?</div>
+        <div class="modal-msg" id="modal-msg">Are you sure you want to submit? This cannot be undone.</div>
+        <div class="modal-btns">
+            <button class="modal-btn cancel" onclick="closeModal()">Cancel</button>
+            <button class="modal-btn confirm" onclick="confirmSubmit()">Yes, Submit</button>
+        </div>
+    </div>
+</div>
 
 <form action="{{ route('student.quizzes.submit', $quiz) }}" method="POST" id="quiz-form">
 @csrf
@@ -352,7 +418,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
     window.submitQuiz = function() {
         if (isSubmitted) return;
-        if (!confirm('Submit quiz? This cannot be undone.')) return;
+        var unanswered = totalQ - Object.keys(answered).length;
+        var overlay = document.getElementById('submit-overlay');
+        var icon    = document.getElementById('modal-icon');
+        var title   = document.getElementById('modal-title');
+        var msg     = document.getElementById('modal-msg');
+
+        if (unanswered > 0) {
+            icon.className  = 'modal-icon orange';
+            icon.textContent = '⚠️';
+            title.textContent = 'Unanswered Questions!';
+            msg.textContent   = unanswered + ' question(s) left unanswered. Submit anyway? Unanswered questions will get 0 marks.';
+        } else {
+            icon.className  = 'modal-icon green';
+            icon.textContent = '✅';
+            title.textContent = 'Submit Quiz?';
+            msg.textContent   = 'All questions answered! Are you sure you want to submit? This cannot be undone.';
+        }
+        overlay.classList.add('show');
+    };
+
+    window.closeModal = function() {
+        document.getElementById('submit-overlay').classList.remove('show');
+    };
+
+    window.confirmSubmit = function() {
+        if (isSubmitted) return;
         isSubmitted = true;
         clearInterval(timerInterval);
         document.getElementById('quiz-form').submit();
@@ -390,13 +481,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (remaining <= 0) {
                 clearInterval(timerInterval);
-                // Time up — auto move next or submit
                 if (currentQ < totalQ - 1) {
                     moveNext();
                 } else {
                     if (!isSubmitted) {
                         isSubmitted = true;
-                        alert('Time is up! Quiz is being submitted automatically.');
+                        document.getElementById('submit-overlay').classList.remove('show');
                         document.getElementById('quiz-form').submit();
                     }
                 }

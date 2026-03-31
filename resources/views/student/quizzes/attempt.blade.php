@@ -24,7 +24,6 @@
     margin-bottom: 24px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.15);
 }
-
 .quiz-meta { font-size: 0.9rem; opacity: 0.85; }
 
 .timer-box {
@@ -44,7 +43,6 @@
 .timer-box .timer-label { font-size: 0.7rem; opacity: 0.8; margin-top: 2px; }
 .timer-box.warning .timer-digits { color: #ffc107; }
 .timer-box.danger  .timer-digits { color: #ff6b6b; animation: pulse 1s infinite; }
-
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
 
 .progress-thin { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.2); margin-top: 14px; }
@@ -63,13 +61,13 @@
     border: 2px solid #dee2e6;
     display: flex; align-items: center; justify-content: center;
     font-size: 0.75rem; font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
+    cursor: default;
     background: white;
     color: #6c757d;
 }
 .q-dot.current  { border-color: #0d6efd; background: #0d6efd; color: white; }
 .q-dot.answered { border-color: #198754; background: #198754; color: white; }
+.q-dot.locked   { border-color: #adb5bd; background: #e9ecef; color: #adb5bd; }
 
 .question-card {
     background: white;
@@ -121,6 +119,11 @@
     border-color: #0d6efd;
 }
 .option-label.is-selected .option-circle::after { display: block; }
+.option-label.locked-option {
+    pointer-events: none;
+    opacity: 0.7;
+    cursor: not-allowed;
+}
 
 .option-circle {
     width: 22px; height: 22px;
@@ -141,12 +144,13 @@
 
 .nav-buttons {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
-    margin-top: 8px;
+    gap: 12px;
+    margin-top: 20px;
 }
 .btn-nav {
-    padding: 10px 24px;
+    padding: 10px 28px;
     border-radius: 10px;
     font-weight: 600;
     font-size: 0.95rem;
@@ -155,8 +159,6 @@
     transition: all 0.2s;
     display: flex; align-items: center; gap: 8px;
 }
-.btn-prev { background: #f1f3f5; color: #495057; }
-.btn-prev:hover { background: #dee2e6; }
 .btn-next { background: #0d6efd; color: white; }
 .btn-next:hover { background: #0b5ed7; }
 .btn-submit-final { background: #198754; color: white; }
@@ -166,13 +168,18 @@
     font-size: 0.85rem;
     color: #6c757d;
     font-weight: 500;
+    margin-right: auto;
 }
 
-.skip-note {
-    font-size: 0.8rem;
-    color: #adb5bd;
-    text-align: center;
-    margin-top: 6px;
+.locked-notice {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 0.82rem;
+    color: #856404;
+    margin-top: 14px;
+    display: none;
 }
 </style>
 
@@ -217,7 +224,7 @@
 
         @if($question->question_type === 'mcq')
             @foreach($question->options as $option)
-            <label class="option-label" onclick="selectOption(this, '{{ $question->id }}')">
+            <label class="option-label" onclick="selectOption(this, {{ $index }})">
                 <div class="option-circle"></div>
                 <input type="radio"
                        name="answers[{{ $question->id }}]"
@@ -230,7 +237,7 @@
 
         @elseif($question->question_type === 'true_false')
             @foreach(['True', 'False'] as $option)
-            <label class="option-label" onclick="selectOption(this, '{{ $question->id }}')">
+            <label class="option-label" onclick="selectOption(this, {{ $index }})">
                 <div class="option-circle"></div>
                 <input type="radio"
                        name="answers[{{ $question->id }}]"
@@ -242,26 +249,23 @@
             @endforeach
         @endif
 
-        <div class="nav-buttons mt-4">
-            <button type="button" class="btn-nav btn-prev" onclick="goTo({{ $index }} - 1)" {{ $index === 0 ? 'style=visibility:hidden' : '' }}>
-                <i class="bi bi-arrow-left"></i> Previous
-            </button>
+        <div class="locked-notice" id="locked-notice-{{ $index }}">
+            <i class="bi bi-lock-fill me-1"></i> This question is locked. You cannot change your answer.
+        </div>
 
+        <div class="nav-buttons">
             <span class="q-status" id="status-{{ $index }}">Not answered</span>
 
             @if($index === $totalQuestions - 1)
                 <button type="button" class="btn-nav btn-submit-final" onclick="submitQuiz()">
-                    Submit Quiz <i class="bi bi-check-circle"></i>
+                    <i class="bi bi-check-circle me-1"></i> Submit Quiz
                 </button>
             @else
-                <button type="button" class="btn-nav btn-next" onclick="goTo({{ $index }} + 1)">
+                <button type="button" class="btn-nav btn-next" id="next-btn-{{ $index }}" onclick="nextQuestion({{ $index }})">
                     Next <i class="bi bi-arrow-right"></i>
                 </button>
             @endif
         </div>
-        @if($index < $totalQuestions - 1)
-        <p class="skip-note">You can come back to this question later</p>
-        @endif
     </div>
     @endforeach
 
@@ -271,64 +275,84 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-    var totalQ       = {{ $totalQuestions }};
-    var currentQ     = 0;
-    var answered     = {};
-    var isSubmitted  = false;
-    var SECS_PER_Q   = 90;
-    var remaining    = SECS_PER_Q;
+    var totalQ      = {{ $totalQuestions }};
+    var currentQ    = 0;
+    var answered    = {};
+    var locked      = {};
+    var isSubmitted = false;
+    var SECS_PER_Q  = 90;
+    var remaining   = SECS_PER_Q;
     var timerInterval;
 
-    // Build question dots
+    // Build question dots — no click allowed
     var dotsContainer = document.getElementById('question-dots');
     for (var i = 0; i < totalQ; i++) {
         var dot = document.createElement('div');
-        dot.className = 'q-dot' + (i === 0 ? ' current' : '');
+        dot.className = 'q-dot' + (i === 0 ? ' current' : ' locked');
         dot.textContent = i + 1;
-        dot.setAttribute('data-index', i);
-        dot.addEventListener('click', function() { goTo(parseInt(this.getAttribute('data-index'))); });
+        dot.setAttribute('id', 'dot-' + i);
         dotsContainer.appendChild(dot);
     }
 
     function updateDots() {
-        document.querySelectorAll('.q-dot').forEach(function(dot, i) {
+        for (var i = 0; i < totalQ; i++) {
+            var dot = document.getElementById('dot-' + i);
             dot.className = 'q-dot';
-            if (answered[i]) dot.classList.add('answered');
-            if (i === currentQ) dot.classList.add('current');
-        });
+            if (i === currentQ)       dot.classList.add('current');
+            else if (answered[i])     dot.classList.add('answered');
+            else                      dot.classList.add('locked');
+        }
     }
 
-    window.goTo = function(index) {
-        if (index < 0 || index >= totalQ) return;
+    // Move to next question only — NO going back
+    function moveNext() {
+        if (currentQ >= totalQ - 1) return;
+        // Lock current question
+        locked[currentQ] = true;
+        lockCurrentQuestion();
+
         document.getElementById('qcard-' + currentQ).classList.remove('active');
-        currentQ = index;
+        currentQ++;
         document.getElementById('qcard-' + currentQ).classList.add('active');
         updateDots();
         resetTimer();
+    }
+
+    window.nextQuestion = function(index) {
+        moveNext();
     };
 
-    window.selectOption = function(label, questionId) {
+    function lockCurrentQuestion() {
+        var card = document.getElementById('qcard-' + currentQ);
+        // Lock all options
+        card.querySelectorAll('.option-label').forEach(function(l) {
+            l.classList.add('locked-option');
+        });
+        // Show locked notice
+        var notice = document.getElementById('locked-notice-' + currentQ);
+        if (notice) notice.style.display = 'block';
+        // Hide next button
+        var nextBtn = document.getElementById('next-btn-' + currentQ);
+        if (nextBtn) nextBtn.style.display = 'none';
+    }
+
+    window.selectOption = function(label, qIndex) {
+        if (locked[qIndex]) return; // already locked — cannot change
         var card = label.closest('.question-card');
         card.querySelectorAll('.option-label').forEach(function(l) {
             l.classList.remove('is-selected');
         });
         label.classList.add('is-selected');
-        var radio = label.querySelector('.option-radio');
-        radio.checked = true;
-
-        answered[currentQ] = true;
-        var statusEl = document.getElementById('status-' + currentQ);
+        label.querySelector('.option-radio').checked = true;
+        answered[qIndex] = true;
+        var statusEl = document.getElementById('status-' + qIndex);
         if (statusEl) statusEl.textContent = '✓ Answered';
         updateDots();
     };
 
     window.submitQuiz = function() {
         if (isSubmitted) return;
-        var unanswered = totalQ - Object.keys(answered).length;
-        var msg = unanswered > 0
-            ? unanswered + ' question(s) unanswered. Submit anyway?'
-            : 'Submit quiz? You cannot change answers after submission.';
-        if (!confirm(msg)) return;
+        if (!confirm('Submit quiz? This cannot be undone.')) return;
         isSubmitted = true;
         clearInterval(timerInterval);
         document.getElementById('quiz-form').submit();
@@ -350,7 +374,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function tick() {
             if (isSubmitted) return;
-
             display.textContent = pad(Math.floor(remaining / 60)) + ':' + pad(remaining % 60);
             bar.style.width = ((remaining / SECS_PER_Q) * 100) + '%';
 
@@ -367,13 +390,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (remaining <= 0) {
                 clearInterval(timerInterval);
-                // Auto move to next question or submit
+                // Time up — auto move next or submit
                 if (currentQ < totalQ - 1) {
-                    goTo(currentQ + 1);
+                    moveNext();
                 } else {
                     if (!isSubmitted) {
                         isSubmitted = true;
-                        alert('Time is up! Quiz is being submitted.');
+                        alert('Time is up! Quiz is being submitted automatically.');
                         document.getElementById('quiz-form').submit();
                     }
                 }

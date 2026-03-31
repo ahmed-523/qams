@@ -32,7 +32,17 @@
     <div class="main-content">
         <div class="top-bar">
             <strong>@yield('page-title')</strong>
-            <span class="text-muted"><i class="bi bi-person-circle me-1"></i>{{ auth()->user()->name }} <span class="badge bg-primary">{{ ucfirst(auth()->user()->role) }}</span></span>
+            <div class="d-flex align-items-center gap-3">
+                <a href="{{ route('password.change') }}"
+                   class="btn btn-sm btn-outline-secondary"
+                   data-bs-toggle="tooltip" title="Change Password">
+                    <i class="bi bi-lock me-1"></i>Change Password
+                </a>
+                <span class="text-muted">
+                    <i class="bi bi-person-circle me-1"></i>{{ auth()->user()->name }}
+                    <span class="badge bg-primary">{{ ucfirst(auth()->user()->role) }}</span>
+                </span>
+            </div>
         </div>
 
         @if(session('success'))
@@ -49,6 +59,13 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
+            new bootstrap.Tooltip(el);
+        });
+    });
+    </script>
     @yield('scripts')
 </body>
 </html>

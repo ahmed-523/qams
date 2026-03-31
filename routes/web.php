@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\SetupController;
+use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\TeacherController;
@@ -20,15 +21,11 @@ use App\Http\Controllers\Student\AssignmentController as StudentAssignmentContro
 use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
 
-// ─────────────────────────────────────────────
-// First-time setup (only works when no admin exists)
-// ─────────────────────────────────────────────
+// First-time setup
 Route::get('/setup',  [SetupController::class, 'showForm'])->name('setup');
 Route::post('/setup', [SetupController::class, 'create'])->name('setup.post');
 
-// ─────────────────────────────────────────────
 // Auth
-// ─────────────────────────────────────────────
 Route::get('/', function () {
     if (auth()->check()) {
         return redirect()->route(auth()->user()->role . '.dashboard');
@@ -40,40 +37,36 @@ Route::get('/login',   [LoginController::class, 'showLogin'])->name('login')->mi
 Route::post('/login',  [LoginController::class, 'login'])->name('login.post');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-// ─────────────────────────────────────────────
+// ── Change Password (all roles) ──────────────────────────────────────────────
+Route::middleware(['auth'])->group(function () {
+    Route::get('/password/change',  [PasswordController::class, 'showForm'])->name('password.change');
+    Route::post('/password/update', [PasswordController::class, 'update'])->name('password.update');
+});
+
 // Secure Download Routes
-// ─────────────────────────────────────────────
 Route::middleware(['auth'])->group(function () {
 
-    // Download assignment document
     Route::get('/download/assignment/{assignment}', function (Assignment $assignment) {
         if (!$assignment->document_path || !Storage::disk('public')->exists($assignment->document_path)) {
             abort(404, 'Document not found.');
         }
-
         $fullPath = Storage::disk('public')->path($assignment->document_path);
         $fileName = $assignment->title . '.' . pathinfo($assignment->document_path, PATHINFO_EXTENSION);
-
         return response()->download($fullPath, $fileName);
     })->name('download.assignment');
 
-    // Download student submission file
     Route::get('/download/submission/{submission}', function (AssignmentSubmission $submission) {
         if (!$submission->file_path || !Storage::disk('public')->exists($submission->file_path)) {
             abort(404, 'File not found.');
         }
-
         $fullPath = Storage::disk('public')->path($submission->file_path);
         $fileName = basename($submission->file_path);
-
         return response()->download($fullPath, $fileName);
     })->name('download.submission');
 
 });
 
-// ─────────────────────────────────────────────
 // Admin Routes
-// ─────────────────────────────────────────────
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
@@ -95,9 +88,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
 
 });
 
-// ─────────────────────────────────────────────
 // Teacher Routes
-// ─────────────────────────────────────────────
 Route::prefix('teacher')->name('teacher.')->middleware(['auth', 'role:teacher'])->group(function () {
 
     Route::get('/dashboard', [TeacherDashboard::class, 'index'])->name('dashboard');
@@ -118,9 +109,7 @@ Route::prefix('teacher')->name('teacher.')->middleware(['auth', 'role:teacher'])
 
 });
 
-// ─────────────────────────────────────────────
 // Student Routes
-// ─────────────────────────────────────────────
 Route::prefix('student')->name('student.')->middleware(['auth', 'role:student'])->group(function () {
 
     Route::get('/dashboard', [StudentDashboard::class, 'index'])->name('dashboard');

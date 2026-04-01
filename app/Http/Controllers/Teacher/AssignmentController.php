@@ -7,6 +7,7 @@ use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
 use App\Models\Student;
 use App\Models\SchoolClass;
+use App\Models\Subject; // Ye line add ki hai
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -29,8 +30,8 @@ class AssignmentController extends Controller
     public function create()
     {
         $subjects = $this->teacher()->subjects()->with('class')->get();
-        $classes  = SchoolClass::all();
-        return view('teacher.assignments.create', compact('subjects', 'classes'));
+        // Class bhejney ki zaroorat khatam kar di
+        return view('teacher.assignments.create', compact('subjects'));
     }
 
     public function store(Request $request)
@@ -38,13 +39,15 @@ class AssignmentController extends Controller
         $request->validate([
             'title'           => 'required|string|max:255',
             'description'     => 'required|string',
-            'subject_id'      => 'required|exists:subjects,id',
-            'class_id'        => 'required|exists:classes,id',
+            'subject_id'      => 'required|exists:subjects,id', // Sirf subject mangwa rahe hain
             'deadline'        => 'required|date|after:now',
             'total_marks'     => 'required|integer|min:1',
             'submission_type' => 'required|in:text,file',
             'document'        => 'nullable|file|mimes:doc,docx,pdf|max:10240',
         ]);
+
+        // System khud Subject ki madad se uski Class nikal le ga
+        $subject = Subject::findOrFail($request->subject_id);
 
         $documentPath = null;
         if ($request->hasFile('document')) {
@@ -55,7 +58,7 @@ class AssignmentController extends Controller
             'title'           => $request->title,
             'description'     => $request->description,
             'subject_id'      => $request->subject_id,
-            'class_id'        => $request->class_id,
+            'class_id'        => $subject->class_id, // Class automatic save hogi
             'teacher_id'      => $this->teacher()->id,
             'deadline'        => $request->deadline,
             'total_marks'     => $request->total_marks,

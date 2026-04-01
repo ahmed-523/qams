@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title', 'Create Quiz')
-@section('page-title', 'Create New Quiz')
+@section('page-title', 'Create Quiz')
 
 @section('sidebar')
     <a href="{{ route('teacher.dashboard') }}"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
@@ -13,7 +13,7 @@
 @section('content')
 <div class="card border-0 shadow-sm p-4" style="max-width:800px; border-radius: 20px;">
     <div class="card-body">
-        <h5 class="fw-bold mb-4 text-start"><i class="bi bi-plus-circle me-2 text-primary"></i>Quiz Details</h5>
+        <h5 class="fw-normal text-primary mb-4 text-start"><i class="bi bi-plus-circle me-2 text-primary"></i>Create New Quiz</h5>
 
         @if($errors->any())
             <div class="alert alert-soft-danger border-0 mb-4" style="border-radius: 12px;">

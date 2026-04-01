@@ -11,7 +11,7 @@
 @section('content')
 <div class="card shadow-sm border-0" style="max-width:700px; margin: auto;">
     <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
-        <h5 class="mb-0 text-primary"><i class="bi bi-plus-circle me-2"></i>New Assignment Setup</h5>
+        <h5 class="mb-0 text-primary"><i class="bi bi-plus-circle me-2"></i>Create New Assignment</h5>
     </div>
     <div class="card-body p-4">
         <form action="{{ route('teacher.assignments.store') }}" method="POST" enctype="multipart/form-data">
@@ -19,7 +19,7 @@
 
             <div class="mb-4">
                 <label class="form-label fw-bold text-secondary">Assignment Title *</label>
-                <input type="text" name="title" class="form-control form-control-lg shadow-sm" required value="{{ old('title') }}" placeholder="e.g. Chapter 3 Exercise">
+                <input type="text" name="title" class="form-control form-control-lg shadow-sm" required value="{{ old('title') }}" placeholder="e.g. Quiz 1">
             </div>
 
             <div class="row g-4 mb-4">

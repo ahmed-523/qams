@@ -123,7 +123,7 @@
         <div class="d-flex justify-content-end gap-2 mt-2">
             <a href="{{ route('teacher.questions.index') }}" class="btn btn-light border px-4">Cancel</a>
             <button type="submit" class="btn btn-primary px-4 shadow-sm">
-                <i class="bi bi-check2-circle me-1"></i> Save Question
+                Save Question
             </button>
         </div>
         </form>

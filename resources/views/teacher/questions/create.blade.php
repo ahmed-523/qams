@@ -11,11 +11,14 @@
 @endsection
 
 @section('content')
-<div class="card" style="max-width:680px">
-    <div class="card-body">
+<div class="card shadow-sm border-0 rounded-3" style="max-width: 700px; margin: 0 auto;">
+    <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
+        <h5 class="mb-0 text-primary"><i class="bi bi-plus-circle me-2"></i>Create New Question</h5>
+    </div>
+    <div class="card-body p-4">
 
         @if($errors->any())
-            <div class="alert alert-danger">
+            <div class="alert alert-danger rounded-3">
                 <ul class="mb-0">
                     @foreach($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -26,12 +29,12 @@
 
         <form action="{{ route('teacher.questions.store') }}" method="POST" id="qform">
             @csrf
-            <div class="row g-3">
+            <div class="row g-4">
 
                 {{-- Subject --}}
                 <div class="col-md-6">
-                    <label class="form-label">Subject *</label>
-                    <select name="subject_id" class="form-select" required>
+                    <label class="form-label fw-semibold text-muted">Subject <span class="text-danger">*</span></label>
+                    <select name="subject_id" class="form-select bg-light" required>
                         <option value="">-- Select Subject --</option>
                         @foreach($subjects as $subject)
                             <option value="{{ $subject->id }}" {{ old('subject_id') == $subject->id ? 'selected' : '' }}>
@@ -41,77 +44,80 @@
                     </select>
                 </div>
 
-                {{-- Question Type: MCQ and True/False only --}}
+                {{-- Question Type --}}
                 <div class="col-md-6">
-                    <label class="form-label">Question Type *</label>
-                    <select name="question_type" id="q-type" class="form-select" required>
+                    <label class="form-label fw-semibold text-muted">Question Type <span class="text-danger">*</span></label>
+                    <select name="question_type" id="q-type" class="form-select bg-light" required>
                         <option value="">-- Select Type --</option>
-                        <option value="mcq"       {{ old('question_type') == 'mcq'       ? 'selected' : '' }}>MCQ (Multiple Choice)</option>
+                        <option value="mcq" {{ old('question_type') == 'mcq' ? 'selected' : '' }}>MCQ (Multiple Choice)</option>
                         <option value="true_false" {{ old('question_type') == 'true_false' ? 'selected' : '' }}>True / False</option>
                     </select>
                 </div>
 
                 {{-- Question Text --}}
                 <div class="col-12">
-                    <label class="form-label">Question Text *</label>
-                    <textarea name="question_text" class="form-control" rows="3" required>{{ old('question_text') }}</textarea>
+                    <label class="form-label fw-semibold text-muted">Question Text <span class="text-danger">*</span></label>
+                    <textarea name="question_text" class="form-control bg-light" rows="3" placeholder="Type your question here..." required>{{ old('question_text') }}</textarea>
                 </div>
 
                 {{-- MCQ Options --}}
                 <div class="col-12" id="mcq-options" style="display:none">
-                    <label class="form-label">MCQ Options <span class="text-danger">*</span></label>
-                    @for($i = 0; $i < 4; $i++)
-                        <input type="text"
-                               name="options[]"
-                               id="option-{{ $i }}"
-                               class="form-control mb-2 mcq-option-input"
-                               placeholder="Option {{ $i + 1 }}"
-                               value="{{ old('options.' . $i) }}">
-                    @endfor
-                    <small class="text-muted">Fill all 4 options. Correct answer dropdown updates automatically.</small>
+                    <label class="form-label fw-semibold text-muted">MCQ Options <span class="text-danger">*</span></label>
+                    <div class="row g-2">
+                        @for($i = 0; $i < 4; $i++)
+                            <div class="col-md-6">
+                                <input type="text"
+                                       name="options[]"
+                                       id="option-{{ $i }}"
+                                       class="form-control bg-light mcq-option-input"
+                                       placeholder="Option {{ $i + 1 }}"
+                                       value="{{ old('options.' . $i) }}">
+                            </div>
+                        @endfor
+                    </div>
+                    <small class="text-muted mt-2 d-block"><i class="bi bi-info-circle me-1"></i>Fill all 4 options. The correct answer dropdown will update automatically.</small>
                 </div>
 
                 {{-- Correct Answer --}}
                 <div class="col-md-6">
-                    <label class="form-label">Correct Answer *</label>
+                    <label class="form-label fw-semibold text-muted">Correct Answer <span class="text-danger">*</span></label>
 
-                    {{-- MCQ: populated from option inputs --}}
-                    <select name="correct_answer" id="correct-answer-mcq" class="form-select" style="display:none">
+                    {{-- MCQ Select --}}
+                    <select name="correct_answer" id="correct-answer-mcq" class="form-select bg-light" style="display:none">
                         <option value="">-- Select correct option --</option>
                         @for($i = 0; $i < 4; $i++)
                             @if(old('options.' . $i))
-                                <option value="{{ old('options.' . $i) }}"
-                                    {{ old('correct_answer') == old('options.' . $i) ? 'selected' : '' }}>
+                                <option value="{{ old('options.' . $i) }}" {{ old('correct_answer') == old('options.' . $i) ? 'selected' : '' }}>
                                     {{ old('options.' . $i) }}
                                 </option>
                             @endif
                         @endfor
                     </select>
 
-                    {{-- True/False --}}
-                    <select name="correct_answer" id="correct-answer-tf" class="form-select" style="display:none">
+                    {{-- True/False Select --}}
+                    <select name="correct_answer" id="correct-answer-tf" class="form-select bg-light" style="display:none">
                         <option value="">-- Select --</option>
                         <option value="True"  {{ old('correct_answer') == 'True'  ? 'selected' : '' }}>True</option>
                         <option value="False" {{ old('correct_answer') == 'False' ? 'selected' : '' }}>False</option>
                     </select>
-
                     <small class="text-muted" id="answer-hint"></small>
                 </div>
 
                 {{-- Marks --}}
                 <div class="col-md-6">
-                    <label class="form-label">Marks *</label>
-                    <input type="number" name="marks" class="form-control" min="1"
-                           value="{{ old('marks', 1) }}" required>
+                    <label class="form-label fw-semibold text-muted">Marks <span class="text-danger">*</span></label>
+                    <input type="number" name="marks" class="form-control bg-light" min="1" value="{{ old('marks', 1) }}" required>
                 </div>
 
             </div>
 
-            <div class="mt-4">
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-check-lg me-1"></i>Add Question
+            <hr class="my-4">
+            
+            <div class="d-flex justify-content-end">
+                <a href="{{ route('teacher.questions.index') }}" class="btn btn-light me-2 px-4">Cancel</a>
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="bi bi-check2-circle me-1"></i> Save Question
                 </button>
-                <a href="{{ route('teacher.questions.index') }}" class="btn btn-secondary ms-2">Cancel</a>
             </div>
         </form>
     </div>
@@ -119,60 +125,60 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    var qType        = document.getElementById('q-type');
-    var mcqOptions   = document.getElementById('mcq-options');
-    var answerMcq    = document.getElementById('correct-answer-mcq');
-    var answerTf     = document.getElementById('correct-answer-tf');
-    var answerHint   = document.getElementById('answer-hint');
-    var optionInputs = document.querySelectorAll('.mcq-option-input');
+    const qType = document.getElementById('q-type');
+    const mcqOptions = document.getElementById('mcq-options');
+    const answerMcq = document.getElementById('correct-answer-mcq');
+    const answerTf = document.getElementById('correct-answer-tf');
+    const answerHint = document.getElementById('answer-hint');
+    const optionInputs = document.querySelectorAll('.mcq-option-input');
 
     function toggleOptions() {
-        var type = qType.value;
+        const type = qType.value;
 
-        // Reset everything first
-        [answerMcq, answerTf].forEach(function (el) {
+        // Reset inputs completely
+        [answerMcq, answerTf].forEach(el => {
             el.style.display = 'none';
+            el.disabled = true; // Prevents submitting hidden inputs
             el.removeAttribute('required');
-            el.name = '';
         });
         
-        optionInputs.forEach(function (el) { 
+        optionInputs.forEach(el => { 
+            el.disabled = true; // Prevents "options.0 must be a string" error
             el.removeAttribute('required'); 
-            el.name = ''; // Clear name to avoid sending empty strings
         });
         
         mcqOptions.style.display = 'none';
-        answerHint.textContent   = '';
+        answerHint.textContent = '';
 
         if (type === 'mcq') {
             mcqOptions.style.display = 'block';
-            answerMcq.style.display  = 'block';
+            answerMcq.style.display = 'block';
+            answerMcq.disabled = false;
             answerMcq.setAttribute('required', 'required');
-            answerMcq.name = 'correct_answer';
             
-            optionInputs.forEach(function (el) { 
+            optionInputs.forEach(el => { 
+                el.disabled = false;
                 el.setAttribute('required', 'required'); 
-                el.name = 'options[]'; // Add name back for MCQs
             });
             
             answerHint.textContent = 'Select one of the 4 options as correct.';
             syncMcqDropdown();
         } else if (type === 'true_false') {
             answerTf.style.display = 'block';
+            answerTf.disabled = false;
             answerTf.setAttribute('required', 'required');
-            answerTf.name = 'correct_answer';
             answerHint.textContent = 'Choose True or False.';
         }
     }
 
     function syncMcqDropdown() {
-        var previous = answerMcq.value;
+        const previous = answerMcq.value;
         answerMcq.innerHTML = '<option value="">-- Select correct option --</option>';
-        optionInputs.forEach(function (input, idx) {
-            var val = input.value.trim();
+        optionInputs.forEach((input, idx) => {
+            const val = input.value.trim();
             if (val) {
-                var opt = document.createElement('option');
-                opt.value       = val;
+                const opt = document.createElement('option');
+                opt.value = val;
                 opt.textContent = 'Option ' + (idx + 1) + ': ' + val;
                 if (val === previous) opt.selected = true;
                 answerMcq.appendChild(opt);
@@ -181,9 +187,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     qType.addEventListener('change', toggleOptions);
-    optionInputs.forEach(function (input) {
-        input.addEventListener('input', syncMcqDropdown);
-    });
+    optionInputs.forEach(input => input.addEventListener('input', syncMcqDropdown));
 
     toggleOptions();
 });

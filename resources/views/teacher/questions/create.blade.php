@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title', 'Add Question')
-@section('page-title', 'Add Question to Bank')
+@section('page-title', 'Add Questions to  Quesiton Bank')
 
 @section('sidebar')
     <a href="{{ route('teacher.dashboard') }}"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>

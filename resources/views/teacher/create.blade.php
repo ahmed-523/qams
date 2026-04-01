@@ -11,7 +11,7 @@
 @endsection
 
 @section('content')
-<div class="w-100 d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+<div class="w-100 d-flex justify-content-center py-5">
     <div class="card shadow-sm border-0 w-100" style="max-width:700px;">
         <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
             <h5 class="mb-0 text-primary"><i class="bi bi-plus-circle me-2"></i>Create New Quiz</h5>

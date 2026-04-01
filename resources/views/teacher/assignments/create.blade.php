@@ -55,7 +55,7 @@
             {{-- Submission Type --}}
             <div class="mb-4">
                 <label class="form-label fw-bold text-secondary">Student Submission Type *</label>
-                <div class="d-flex gap-4 p-3 bg-light rounded border">
+                <div class="d-flex gap-4 p-3 bg-light rounded border shadow-sm">
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="submission_type" id="type_text" value="text"
                             {{ old('submission_type', 'text') === 'text' ? 'checked' : '' }}>
@@ -81,21 +81,24 @@
                     placeholder="Write any specific rules or short instructions for the students here...">{{ old('description') }}</textarea>
             </div>
 
-            <div class="mb-4 p-3 border rounded border-info bg-white">
+            <div class="mb-4 p-3 border rounded border-info bg-white shadow-sm">
                 <label class="form-label fw-bold text-secondary">Assignment Document <span
                         class="text-muted fw-normal">(Word / PDF)</span></label>
-                <input type="file" name="document" class="form-control" accept=".doc,.docx,.pdf">
+                <input type="file" name="document" class="form-control shadow-sm" accept=".doc,.docx,.pdf">
                 <div class="form-text mt-2">Upload a <strong>.doc</strong>, <strong>.docx</strong>, or
                     <strong>.pdf</strong> file containing the full assignment questions. Students will be able to
-                    download this file. Max size: 10 MB.</div>
+                    download this file. Max size: 10 MB.
+                </div>
             </div>
 
-            <div class="alert alert-warning py-2 mb-4 d-flex align-items-center">
+            <div class="alert alert-warning py-2 mb-4 d-flex align-items-center shadow-sm">
                 <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
                 <div>
                     Students who submit after the deadline automatically receive <strong>0 marks</strong>.
                 </div>
             </div>
+
+            <hr class="text-muted my-4">
 
             <div class="d-flex justify-content-end gap-2 mt-2">
                 <a href="{{ route('teacher.assignments.index') }}" class="btn btn-light border px-4">Cancel</a>

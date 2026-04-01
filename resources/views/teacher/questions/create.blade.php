@@ -12,116 +12,122 @@
 @endsection
 
 @section('content')
-<div class="card shadow-sm border-0" style="max-width: 700px; margin: auto;">
-    <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
-        <h5 class="mb-0 text-primary"><i class="bi bi-plus-circle me-2"></i>Create New Question</h5>
-    </div>
-    <div class="card-body p-4">
-
-        @if($errors->any())
-        <div class="alert alert-danger shadow-sm">
-            <ul class="mb-0">
-                @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+<div class="w-100 d-flex justify-content-center">
+    <div class="card shadow-sm border-0 w-100" style="max-width: 700px;">
+        <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+            <h5 class="mb-0 text-primary"><i class="bi bi-plus-circle me-2"></i>Create New Question</h5>
         </div>
-        @endif
+        <div class="card-body p-4">
 
-        <form action="{{ route('teacher.questions.store') }}" method="POST" id="qform">
-            @csrf
-            <div class="row g-4 mb-4">
+            @if($errors->any())
+            <div class="alert alert-danger shadow-sm">
+                <ul class="mb-0">
+                    @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
 
-                {{-- Subject --}}
-                <div class="col-md-6">
-                    <label class="form-label fw-bold text-secondary">Subject *</label>
-                    <select name="subject_id" class="form-select shadow-sm" required>
-                        <option value="">-- Select Subject --</option>
-                        @foreach($subjects as $subject)
-                        <option value="{{ $subject->id }}" {{ old('subject_id') == $subject->id ? 'selected' : '' }}>
-                            {{ $subject->name }}
-                        </option>
-                        @endforeach
-                    </select>
-                </div>
+            <form action="{{ route('teacher.questions.store') }}" method="POST" id="qform">
+                @csrf
+                <div class="row g-4 mb-4">
 
-                {{-- Question Type --}}
-                <div class="col-md-6">
-                    <label class="form-label fw-bold text-secondary">Question Type *</label>
-                    <select name="question_type" id="q-type" class="form-select shadow-sm" required>
-                        <option value="">-- Select Type --</option>
-                        <option value="mcq" {{ old('question_type') == 'mcq' ? 'selected' : '' }}>MCQ (Multiple Choice)
-                        </option>
-                        <option value="true_false" {{ old('question_type') == 'true_false' ? 'selected' : '' }}>True /
-                            False</option>
-                    </select>
-                </div>
-
-                {{-- Question Text --}}
-                <div class="col-12">
-                    <label class="form-label fw-bold text-secondary">Question Text *</label>
-                    <textarea name="question_text" class="form-control shadow-sm" rows="3"
-                        placeholder="Type your question here..." required>{{ old('question_text') }}</textarea>
-                </div>
-
-                {{-- MCQ Options --}}
-                <div class="col-12" id="mcq-options" style="display:none">
-                    <label class="form-label fw-bold text-secondary">MCQ Options *</label>
-                    <div class="row g-2">
-                        @for($i = 0; $i < 4; $i++) <div class="col-md-6">
-                            <input type="text" name="options[]" id="option-{{ $i }}"
-                                class="form-control shadow-sm mcq-option-input" placeholder="Option {{ $i + 1 }}"
-                                value="{{ old('options.' . $i) }}">
+                    {{-- Subject --}}
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-secondary">Subject *</label>
+                        <select name="subject_id" class="form-select shadow-sm" required>
+                            <option value="">-- Select Subject --</option>
+                            @foreach($subjects as $subject)
+                            <option value="{{ $subject->id }}"
+                                {{ old('subject_id') == $subject->id ? 'selected' : '' }}>
+                                {{ $subject->name }}
+                            </option>
+                            @endforeach
+                        </select>
                     </div>
-                    @endfor
-                </div>
-                <small class="text-muted mt-2 d-block"><i class="bi bi-info-circle me-1"></i>Fill all 4 options. The
-                    correct answer dropdown will update automatically.</small>
-            </div>
 
-            {{-- Correct Answer --}}
-            <div class="col-md-6">
-                <label class="form-label fw-bold text-secondary">Correct Answer *</label>
+                    {{-- Question Type --}}
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-secondary">Question Type *</label>
+                        <select name="question_type" id="q-type" class="form-select shadow-sm" required>
+                            <option value="">-- Select Type --</option>
+                            <option value="mcq" {{ old('question_type') == 'mcq' ? 'selected' : '' }}>MCQ (Multiple
+                                Choice)
+                            </option>
+                            <option value="true_false" {{ old('question_type') == 'true_false' ? 'selected' : '' }}>True
+                                /
+                                False</option>
+                        </select>
+                    </div>
 
-                {{-- MCQ Select --}}
-                <select name="correct_answer" id="correct-answer-mcq" class="form-select shadow-sm"
-                    style="display:none">
-                    <option value="">-- Select correct option --</option>
-                    @for($i = 0; $i < 4; $i++) @if(old('options.' . $i)) <option value="{{ old('options.' . $i) }}"
-                        {{ old('correct_answer') == old('options.' . $i) ? 'selected' : '' }}>
-                        {{ old('options.' . $i) }}
-                        </option>
-                        @endif
+                    {{-- Question Text --}}
+                    <div class="col-12">
+                        <label class="form-label fw-bold text-secondary">Question Text *</label>
+                        <textarea name="question_text" class="form-control shadow-sm" rows="3"
+                            placeholder="Type your question here..." required>{{ old('question_text') }}</textarea>
+                    </div>
+
+                    {{-- MCQ Options --}}
+                    <div class="col-12" id="mcq-options" style="display:none">
+                        <label class="form-label fw-bold text-secondary">MCQ Options *</label>
+                        <div class="row g-2">
+                            @for($i = 0; $i < 4; $i++) <div class="col-md-6">
+                                <input type="text" name="options[]" id="option-{{ $i }}"
+                                    class="form-control shadow-sm mcq-option-input" placeholder="Option {{ $i + 1 }}"
+                                    value="{{ old('options.' . $i) }}">
+                        </div>
                         @endfor
-                </select>
+                    </div>
+                    <small class="text-muted mt-2 d-block"><i class="bi bi-info-circle me-1"></i>Fill all 4 options. The
+                        correct answer dropdown will update automatically.</small>
+                </div>
 
-                {{-- True/False Select --}}
-                <select name="correct_answer" id="correct-answer-tf" class="form-select shadow-sm" style="display:none">
-                    <option value="">-- Select --</option>
-                    <option value="True" {{ old('correct_answer') == 'True'  ? 'selected' : '' }}>True</option>
-                    <option value="False" {{ old('correct_answer') == 'False' ? 'selected' : '' }}>False</option>
-                </select>
-                <small class="text-muted mt-2 d-block" id="answer-hint"></small>
-            </div>
+                {{-- Correct Answer --}}
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-secondary">Correct Answer *</label>
 
-            {{-- Marks --}}
-            <div class="col-md-6">
-                <label class="form-label fw-bold text-secondary">Marks *</label>
-                <input type="number" name="marks" class="form-control shadow-sm" min="1" value="{{ old('marks', 1) }}"
-                    required>
-            </div>
+                    {{-- MCQ Select --}}
+                    <select name="correct_answer" id="correct-answer-mcq" class="form-select shadow-sm"
+                        style="display:none">
+                        <option value="">-- Select correct option --</option>
+                        @for($i = 0; $i < 4; $i++) @if(old('options.' . $i)) <option value="{{ old('options.' . $i) }}"
+                            {{ old('correct_answer') == old('options.' . $i) ? 'selected' : '' }}>
+                            {{ old('options.' . $i) }}
+                            </option>
+                            @endif
+                            @endfor
+                    </select>
 
+                    {{-- True/False Select --}}
+                    <select name="correct_answer" id="correct-answer-tf" class="form-select shadow-sm"
+                        style="display:none">
+                        <option value="">-- Select --</option>
+                        <option value="True" {{ old('correct_answer') == 'True'  ? 'selected' : '' }}>True</option>
+                        <option value="False" {{ old('correct_answer') == 'False' ? 'selected' : '' }}>False</option>
+                    </select>
+                    <small class="text-muted mt-2 d-block" id="answer-hint"></small>
+                </div>
+
+                {{-- Marks --}}
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-secondary">Marks *</label>
+                    <input type="number" name="marks" class="form-control shadow-sm" min="1"
+                        value="{{ old('marks', 1) }}" required>
+                </div>
+
+        </div>
+
+        <hr class="text-muted my-4">
+
+        <div class="d-flex justify-content-end gap-2 mt-2">
+            <a href="{{ route('teacher.questions.index') }}" class="btn btn-light border px-4">Cancel</a>
+            <button type="submit" class="btn btn-primary px-4 shadow-sm">
+                <i class="bi bi-check2-circle me-1"></i> Save Question
+            </button>
+        </div>
+        </form>
     </div>
-
-    <hr class="text-muted my-4">
-
-    <div class="d-flex justify-content-end gap-2 mt-2">
-        <a href="{{ route('teacher.questions.index') }}" class="btn btn-light border px-4">Cancel</a>
-        <button type="submit" class="btn btn-primary px-4 shadow-sm">
-            <i class="bi bi-check2-circle me-1"></i> Save Question
-        </button>
-    </div>
-    </form>
 </div>
 </div>
 

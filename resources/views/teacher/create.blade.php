@@ -11,90 +11,93 @@
 @endsection
 
 @section('content')
-<div class="card shadow-sm border-0" style="max-width:700px; margin: auto;">
-    <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
-        <h5 class="mb-0 text-primary"><i class="bi bi-plus-circle me-2"></i>Create New Quiz</h5>
-    </div>
-    <div class="card-body p-4">
-
-        @if($errors->any())
-        <div class="alert alert-danger shadow-sm">
-            <ul class="mb-0">
-                @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+<div class="w-100 d-flex justify-content-center">
+    <div class="card shadow-sm border-0 w-100" style="max-width:700px;">
+        <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+            <h5 class="mb-0 text-primary"><i class="bi bi-plus-circle me-2"></i>Create New Quiz</h5>
         </div>
-        @endif
+        <div class="card-body p-4">
 
-        <form action="{{ route('teacher.quizzes.store') }}" method="POST" id="quiz-form">
-            @csrf
-
-            <div class="mb-4">
-                <label class="form-label fw-bold text-secondary">Quiz Title *</label>
-                <input type="text" name="title" class="form-control form-control-lg shadow-sm" required
-                    value="{{ old('title') }}" placeholder="e.g. Quiz 1">
+            @if($errors->any())
+            <div class="alert alert-danger shadow-sm">
+                <ul class="mb-0">
+                    @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
+            @endif
 
-            <div class="row g-4 mb-4">
-                <div class="col-md-6">
-                    <label class="form-label fw-bold text-secondary">Subject *</label>
-                    <select name="subject_id" class="form-select shadow-sm" required id="subject-select">
-                        <option value="">-- Select Subject --</option>
-                        @foreach($subjects as $subject)
-                        <option value="{{ $subject->id }}" data-class="{{ $subject->class_id }}"
-                            {{ old('subject_id') == $subject->id ? 'selected' : '' }}>
-                            {{ $subject->name }} ({{ $subject->class->name ?? '' }})
-                        </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label fw-bold text-secondary">Class *</label>
-                    <select name="class_id" class="form-select shadow-sm" required id="class-select">
-                        <option value="">-- Select Class --</option>
-                        @foreach($classes as $class)
-                        <option value="{{ $class->id }}" {{ old('class_id') == $class->id ? 'selected' : '' }}>
-                            {{ $class->name }}
-                        </option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
+            <form action="{{ route('teacher.quizzes.store') }}" method="POST" id="quiz-form">
+                @csrf
 
-            <div class="mb-4">
-                <label class="form-label fw-bold text-secondary">Number of Questions *</label>
-                <div class="input-group shadow-sm">
-                    <input type="number" name="number_of_questions" id="number-of-questions"
-                        class="form-control @error('number_of_questions') is-invalid @enderror" min="1"
-                        placeholder="e.g. 5" value="{{ old('number_of_questions') }}" required>
-                    <button type="button" class="btn btn-outline-secondary" id="check-btn">
-                        <i class="bi bi-search me-1"></i> Check Bank
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-secondary">Quiz Title *</label>
+                    <input type="text" name="title" class="form-control shadow-sm" required value="{{ old('title') }}"
+                        placeholder="e.g. Quiz 1">
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-secondary">Subject *</label>
+                        <select name="subject_id" class="form-select shadow-sm" required id="subject-select">
+                            <option value="">-- Select Subject --</option>
+                            @foreach($subjects as $subject)
+                            <option value="{{ $subject->id }}" data-class="{{ $subject->class_id }}"
+                                {{ old('subject_id') == $subject->id ? 'selected' : '' }}>
+                                {{ $subject->name }} ({{ $subject->class->name ?? '' }})
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-secondary">Class *</label>
+                        <select name="class_id" class="form-select shadow-sm" required id="class-select">
+                            <option value="">-- Select Class --</option>
+                            @foreach($classes as $class)
+                            <option value="{{ $class->id }}" {{ old('class_id') == $class->id ? 'selected' : '' }}>
+                                {{ $class->name }}
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-secondary">Number of Questions *</label>
+                    <div class="input-group shadow-sm">
+                        <input type="number" name="number_of_questions" id="number-of-questions"
+                            class="form-control @error('number_of_questions') is-invalid @enderror" min="1"
+                            placeholder="e.g. 5" value="{{ old('number_of_questions') }}" required>
+                        <button type="button" class="btn btn-outline-secondary" id="check-btn">
+                            <i class="bi bi-search me-1"></i> Check Bank
+                        </button>
+                    </div>
+                    @error('number_of_questions')
+                    <div class="text-danger small mt-1">{{ $message }}</div>
+                    @enderror
+                    <small class="text-muted mt-2 d-block"><i class="bi bi-info-circle me-1"></i>Questions will be
+                        picked
+                        randomly from your question bank.</small>
+                    <div id="bank-check-result" class="mt-2 shadow-sm rounded" style="display:none;"></div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-secondary">Deadline *</label>
+                    <input type="datetime-local" name="deadline" class="form-control shadow-sm" required
+                        value="{{ old('deadline') }}">
+                </div>
+
+                <hr class="text-muted my-4">
+
+                <div class="d-flex justify-content-end gap-2 mt-2">
+                    <a href="{{ route('teacher.quizzes.index') }}" class="btn btn-light border px-4">Cancel</a>
+                    <button type="submit" class="btn btn-primary px-4 shadow-sm" id="submit-btn" disabled>
+                        <i class="bi bi-check2-circle me-1"></i> Create Quiz
                     </button>
                 </div>
-                @error('number_of_questions')
-                <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
-                <small class="text-muted mt-2 d-block"><i class="bi bi-info-circle me-1"></i>Questions will be picked
-                    randomly from your question bank.</small>
-                <div id="bank-check-result" class="mt-2 shadow-sm rounded" style="display:none;"></div>
-            </div>
-
-            <div class="mb-4">
-                <label class="form-label fw-bold text-secondary">Deadline *</label>
-                <input type="datetime-local" name="deadline" class="form-control shadow-sm" required
-                    value="{{ old('deadline') }}">
-            </div>
-
-            <hr class="text-muted my-4">
-
-            <div class="d-flex justify-content-end gap-2 mt-2">
-                <a href="{{ route('teacher.quizzes.index') }}" class="btn btn-light border px-4">Cancel</a>
-                <button type="submit" class="btn btn-primary px-4 shadow-sm" id="submit-btn" disabled>
-                    <i class="bi bi-check2-circle me-1"></i> Create Quiz
-                </button>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </div>
 

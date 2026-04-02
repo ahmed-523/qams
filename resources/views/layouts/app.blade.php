@@ -160,7 +160,13 @@
                 </a>
                 
                 <div class="d-flex align-items-center bg-light rounded-pill px-3 py-1 border">
-                    <i class="bi bi-person-circle text-primary fs-5 me-2"></i>
+                    @if(auth()->user()->student && auth()->user()->student->picture)
+    <img src="{{ asset('storage/' . auth()->user()->student->picture) }}" 
+         class="rounded-circle me-2" 
+         style="width:32px; height:32px; object-fit:cover;">
+@else
+    <i class="bi bi-person-circle text-primary fs-5 me-2"></i>
+@endif
                     <span class="fw-semibold me-2">{{ auth()->user()->name }}</span>
                     <span class="badge bg-primary rounded-pill">{{ ucfirst(auth()->user()->role) }}</span>
                 </div>

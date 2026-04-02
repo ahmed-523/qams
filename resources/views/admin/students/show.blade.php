@@ -13,7 +13,11 @@
 <div class="row g-4">
     <div class="col-md-4">
         <div class="card text-center p-4">
-            <i class="bi bi-person-circle" style="font-size:4rem;color:#1e3a5f"></i>
+            @if($student->picture)
+    <img src="{{ asset('storage/' . $student->picture) }}" alt="Profile Picture" style="width:100px;height:100px;border-radius:50%;object-fit:cover;">
+@else
+    <i class="bi bi-person-circle" style="font-size:4rem;color:#1e3a5f"></i>
+@endif
             <h5 class="mt-2">{{ $student->user->name }}</h5>
             <p class="text-muted mb-1"><code>{{ $student->user->username }}</code></p>
             <span class="badge {{ $student->user->is_blocked ? 'bg-danger' : 'bg-success' }}">{{ $student->user->is_blocked ? 'Blocked' : 'Active' }}</span>

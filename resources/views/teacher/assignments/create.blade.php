@@ -22,7 +22,7 @@
                 <div class="mb-4">
                     <label class="form-label fw-bold text-secondary">Assignment Title *</label>
                     <input type="text" name="title" class="form-control shadow-sm" required value="{{ old('title') }}"
-                        placeholder="e.g. Assignment 1">
+                        placeholder="Enter assignment title...">
                 </div>
 
                 <div class="row g-4 mb-4">

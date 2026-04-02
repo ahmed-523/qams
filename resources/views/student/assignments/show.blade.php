@@ -9,7 +9,6 @@
 @endsection
 @section('content')
 
-{{-- Assignment Info --}}
 <div class="card mb-4">
     <div class="card-body">
         <div class="row mb-3">
@@ -38,7 +37,6 @@
             </div>
         </div>
 
-        {{-- Instructions --}}
         @if($assignment->description)
         <div class="mb-3">
             <strong>Instructions from Teacher:</strong>
@@ -46,15 +44,13 @@
         </div>
         @endif
 
-        {{-- Assignment Document Download (using secure route) --}}
         @if($assignment->document_path)
         <div class="alert alert-primary d-flex align-items-center gap-3">
             <i class="bi bi-file-earmark-word fs-2 text-primary"></i>
             <div>
                 <strong>Assignment Document</strong><br>
                 <span class="text-muted small">Download the document to see the full assignment questions.</span><br>
-                <a href="{{ route('download.assignment', $assignment) }}"
-                   class="btn btn-primary btn-sm mt-2">
+                <a href="{{ route('download.assignment', $assignment) }}" class="btn btn-primary btn-sm mt-2">
                     <i class="bi bi-download me-1"></i>Download Assignment Document
                 </a>
             </div>
@@ -63,7 +59,6 @@
     </div>
 </div>
 
-{{-- If already submitted --}}
 @if($submission)
 <div class="card">
     <div class="card-header bg-white d-flex justify-content-between align-items-center">
@@ -108,15 +103,13 @@
     </div>
 </div>
 
-{{-- If not yet submitted --}}
 @else
 <div class="card">
     <div class="card-header bg-white"><strong>Submit Your Answer</strong></div>
     <div class="card-body">
-        <form action="{{ route('student.assignments.submit', $assignment) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('student.assignments.submit', $assignment) }}" method="POST" enctype="multipart/form-data" id="assignment-form">
             @csrf
 
-            {{-- Show ONLY the relevant submission field based on teacher's choice --}}
             @if($assignment->isTextSubmission())
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Your Written Answer *</label>
@@ -137,13 +130,38 @@
                 </div>
             @endif
 
-            <button type="submit" class="btn btn-success"
-                onclick="return confirm('Submit assignment? You cannot change it after submission.')">
+            <button type="button" class="btn btn-success" onclick="showSubmitModal()">
                 <i class="bi bi-send me-1"></i>Submit Assignment
             </button>
         </form>
     </div>
 </div>
 @endif
+
+{{-- Custom Submit Modal --}}
+<div id="submit-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(3px);">
+    <div style="background:white;border-radius:20px;padding:36px 32px;max-width:400px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+        <div style="width:64px;height:64px;background:#d1fae5;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:1.8rem;">📤</div>
+        <div style="font-size:1.2rem;font-weight:700;color:#1a202c;margin-bottom:8px;">Submit Assignment?</div>
+        <div style="font-size:0.9rem;color:#6c757d;margin-bottom:24px;line-height:1.5;">You cannot change your answer after submission.</div>
+        <div style="display:flex;gap:12px;justify-content:center;">
+            <button onclick="closeSubmitModal()" style="padding:10px 28px;border-radius:10px;font-weight:600;font-size:0.95rem;border:1.5px solid #e2e8f0;background:#f8f9fa;color:#495057;cursor:pointer;">Cancel</button>
+            <button onclick="confirmSubmit()" style="padding:10px 28px;border-radius:10px;font-weight:600;font-size:0.95rem;border:none;background:#198754;color:white;cursor:pointer;">Yes, Submit</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function showSubmitModal() {
+    var overlay = document.getElementById('submit-overlay');
+    overlay.style.display = 'flex';
+}
+function closeSubmitModal() {
+    document.getElementById('submit-overlay').style.display = 'none';
+}
+function confirmSubmit() {
+    document.getElementById('assignment-form').submit();
+}
+</script>
 
 @endsection

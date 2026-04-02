@@ -114,7 +114,7 @@
         /* ── Custom Tooltip ── */
         .tooltip .tooltip-inner {
             background-color: #1a1a2e;
-            color: #00d4aa;
+            color: aliceblue;
             font-family: 'Inter', sans-serif;
             font-size: 0.78rem;
             font-weight: 700;

@@ -9,20 +9,19 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RoleMiddleware
 {
-    /**
-     * Handle an incoming request.
-     */
-    public function handle(Request $request, Closure $next, $role): Response
+    public function handle(Request $request, Closure $next, string $role): Response
     {
-        // Check agar user login nahi hai
-        if (!Auth::check()) {
-            return redirect('login');
+        if (!auth()->check()) {
+            return redirect()->route('login');
         }
 
-        // Check agar login user ka role match nahi karta
-        // (Yeh farz karte hue ke aapke users table mein 'role' ka column hai)
-        if (Auth::user()->role !== $role) {
-            abort(403, 'Unauthorized Action. You do not have permission to access this page.');
+        if (auth()->user()->is_blocked) {
+            Auth::logout();
+            return redirect()->route('login')->with('error', 'Your account has been blocked.');
+        }
+
+        if (auth()->user()->role !== $role) {
+            abort(403, 'Unauthorized action.');
         }
 
         return $next($request);

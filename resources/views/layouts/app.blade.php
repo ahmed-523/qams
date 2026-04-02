@@ -161,7 +161,7 @@
                 
                 <div class="d-flex align-items-center bg-light rounded-pill px-3 py-1 border">
                     @if(auth()->user()->student && auth()->user()->student->picture)
-    <img src="{{ asset('storage/' . auth()->user()->student->picture) }}" 
+    <img src="{{ Storage::url(auth()->user()->student->picture) }}" 
          class="rounded-circle me-2" 
          style="width:32px; height:32px; object-fit:cover;">
 @else

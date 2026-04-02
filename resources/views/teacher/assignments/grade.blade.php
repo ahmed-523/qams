@@ -18,7 +18,7 @@
                 <hr>
                 <p>{{ $submission->solution_text ?? 'No text submitted.' }}</p>
                 @if($submission->file_path)
-                <a href="{{ asset('storage/' . $submission->file_path) }}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="bi bi-download me-1"></i>Download File</a>
+                <a href="{{ route('download.submission', $submission) }}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="bi bi-download me-1"></i>Download File</a>
                 @endif
             </div>
         </div>

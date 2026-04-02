@@ -11,7 +11,7 @@
 @endsection
 
 @section('content')
-<div class="card border-0 shadow-sm p-4" style="max-width:800px; border-radius: 20px;">
+<div class="card border-0 shadow-sm p-4" style="max-width:800px; margin: 0 auto; border-radius: 20px;">
     <div class="card-body">
         <h5 class="fw-normal text-primary mb-4 text-start"><i class="bi bi-plus-circle me-2 text-primary"></i>Create New Quiz</h5>
 
@@ -70,7 +70,7 @@
                     <div class="text-danger small mt-1">{{ $message }}</div>
                 @enderror
                 <div class="form-text mt-2"><i class="bi bi-shuffle me-1"></i> Questions will be picked randomly from your question bank.</div>
-                
+
                 <div id="bank-check-result" class="mt-3 p-3" style="display:none; border-radius: 12px;"></div>
             </div>
 
@@ -81,7 +81,7 @@
 
             <div class="d-flex gap-2 mt-4">
                 <button type="submit" class="btn btn-primary px-5 py-3 fw-bold shadow-sm" id="submit-btn" style="border-radius: 12px;" disabled>
-                    <i class="bi bi-check-lg me-2"></i>Create Quiz
+                    Create Quiz
                 </button>
                 <a href="{{ route('teacher.quizzes.index') }}" class="btn btn-light px-4 py-3 fw-bold text-muted" style="border-radius: 12px;">Cancel</a>
             </div>
@@ -114,13 +114,13 @@ document.addEventListener('DOMContentLoaded', function () {
         var subjectId = subjectSelect.value;
         var numQ      = parseInt(numInput.value, 10);
 
-        if (!subjectId) { 
-            showResult('warning', '⚠️ Please select a subject first.'); 
-            return; 
+        if (!subjectId) {
+            showResult('warning', '⚠️ Please select a subject first.');
+            return;
         }
-        if (!numQ || numQ < 1) { 
-            showResult('warning', '⚠️ Please enter number of questions.'); 
-            return; 
+        if (!numQ || numQ < 1) {
+            showResult('warning', '⚠️ Please enter number of questions.');
+            return;
         }
 
         checkBtn.disabled    = true;
@@ -164,7 +164,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     function showResult(type, html) {
-        // Using vibrant alert-soft classes
         resultBox.className     = 'alert alert-soft-' + type + ' py-3 mb-0';
         resultBox.innerHTML     = '<div class="small fw-medium">' + html + '</div>';
         resultBox.style.display = 'block';

@@ -110,6 +110,23 @@
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
+
+        /* ── Custom Tooltip ── */
+        .tooltip .tooltip-inner {
+            background-color: #1a1a2e;
+            color: #00d4aa;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 7px 14px;
+            border-radius: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+            letter-spacing: 0.4px;
+        }
+        .tooltip.bs-tooltip-top .tooltip-arrow::before    { border-top-color:    #1a1a2e; }
+        .tooltip.bs-tooltip-bottom .tooltip-arrow::before { border-bottom-color: #1a1a2e; }
+        .tooltip.bs-tooltip-start .tooltip-arrow::before  { border-left-color:   #1a1a2e; }
+        .tooltip.bs-tooltip-end .tooltip-arrow::before    { border-right-color:  #1a1a2e; }
     </style>
 </head>
 <body>
@@ -118,7 +135,6 @@
             <i class="bi bi-mortarboard-fill me-2 text-primary"></i>QAMS
         </div>
         
-        <!-- Sidebar Links Will Be Injected Here -->
         @yield('sidebar')
         
         <hr style="border-color: rgba(255, 255, 255, 0.1); margin: 20px 0;">
@@ -136,9 +152,9 @@
             <strong>@yield('page-title')</strong>
             
             <div class="d-flex align-items-center gap-4">
-                <a href="{{ route('password.change') }}" 
-                   class="btn btn-sm btn-light border" 
-                   data-bs-toggle="tooltip" title="Change Password"
+                <a href="{{ route('password.change') }}"
+                    class="btn btn-sm btn-light border"
+                    data-bs-toggle="tooltip" title="Change Password"
                    style="border-radius: 8px; font-weight: 500;">
                     <i class="bi bi-lock me-1"></i>Password
                 </a>
@@ -151,7 +167,6 @@
             </div>
         </div>
 
-        <!-- Notifications/Alerts -->
         @if(session('success'))
             <div class="alert alert-success alert-dismissible fade show d-flex align-items-center">
                 <i class="bi bi-check-circle-fill me-2 fs-5"></i>
@@ -179,18 +194,18 @@
             </div>
         @endif
 
-        <!-- Page Content -->
         @yield('content')
-        
     </div>
 
-    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function () {
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
+            return new bootstrap.Tooltip(tooltipTriggerEl, {
+                trigger: 'hover',
+                delay: { show: 200, hide: 100 }
+            });
         });
     });
     </script>

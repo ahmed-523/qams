@@ -95,6 +95,7 @@ Open: http://127.0.0.1:8000
 
 ---
 
+
 ## File Storage (for pictures/file uploads)
 
 ```bash
@@ -102,6 +103,19 @@ php artisan storage:link
 ```
 
 ---
+
+Remove old link: rm -rf public/storage
+
+Run migrations: php artisan migrate
+Rollback: php artisan migrate:rollback
+Fresh migration: php artisan migrate:fresh
+Without cache: composer install --no-cache
+
+Clear all: php artisan optimize:clear
+Clear config: php artisan config:clear
+Clear routes: php artisan route:clear
+Clear views: php artisan view:clear
+
 
 ## Project Structure
 

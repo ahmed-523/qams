@@ -22,7 +22,7 @@ use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
 
 // First-time setup
-Route::get('/setup',  [SetupController::class, 'showForm'])->name('setup');
+Route::get('/setup', [SetupController::class, 'showForm'])->name('setup');
 Route::post('/setup', [SetupController::class, 'create'])->name('setup.post');
 
 // Auth
@@ -33,13 +33,13 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Route::get('/login',   [LoginController::class, 'showLogin'])->name('login')->middleware('guest');
-Route::post('/login',  [LoginController::class, 'login'])->name('login.post');
+Route::get('/login', [LoginController::class, 'showLogin'])->name('login')->middleware('guest');
+Route::post('/login', [LoginController::class, 'login'])->name('login.post');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // ── Change Password (all roles) ──────────────────────────────────────────────
 Route::middleware(['auth'])->group(function () {
-    Route::get('/password/change',  [PasswordController::class, 'showForm'])->name('password.change');
+    Route::get('/password/change', [PasswordController::class, 'showForm'])->name('password.change');
     Route::post('/password/update', [PasswordController::class, 'update'])->name('password.update');
 });
 
@@ -60,7 +60,11 @@ Route::middleware(['auth'])->group(function () {
             abort(404, 'File not found.');
         }
         $fullPath = Storage::disk('public')->path($submission->file_path);
-        $fileName = basename($submission->file_path);
+        $studentName = $submission->student->user->name ?? 'Student';
+        $className = $submission->student->class->name ?? 'Class';
+        $subjectName = $submission->assignment->subject->name ?? 'Subject';
+        $extension = pathinfo($submission->file_path, PATHINFO_EXTENSION);
+        $fileName = $studentName . '_' . $className . '_' . $subjectName . '_Assignment.' . $extension;
         return response()->download($fullPath, $fileName);
     })->name('download.submission');
 
@@ -71,18 +75,18 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
 
     Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
 
-    Route::resource('classes',  ClassController::class)->except(['show']);
+    Route::resource('classes', ClassController::class)->except(['show']);
     Route::resource('subjects', SubjectController::class)->except(['show']);
     Route::resource('students', StudentController::class)->except(['destroy']);
 
     Route::patch('students/{student}/block', [StudentController::class, 'toggleBlock'])->name('students.block');
 
     Route::resource('teachers', TeacherController::class)->except(['destroy']);
-    Route::patch('teachers/{teacher}/block',                     [TeacherController::class, 'toggleBlock'])->name('teachers.block');
-    Route::post('teachers/{teacher}/assign-subject',             [TeacherController::class, 'assignSubject'])->name('teachers.assign-subject');
+    Route::patch('teachers/{teacher}/block', [TeacherController::class, 'toggleBlock'])->name('teachers.block');
+    Route::post('teachers/{teacher}/assign-subject', [TeacherController::class, 'assignSubject'])->name('teachers.assign-subject');
     Route::delete('teachers/{teacher}/remove-subject/{subject}', [TeacherController::class, 'removeSubject'])->name('teachers.remove-subject');
 
-    Route::get('/reports',          [AdminReport::class, 'index'])->name('reports');
+    Route::get('/reports', [AdminReport::class, 'index'])->name('reports');
     Route::get('/reports/students', [AdminReport::class, 'students'])->name('reports.students');
     Route::get('/reports/teachers', [AdminReport::class, 'teachers'])->name('reports.teachers');
 
@@ -92,7 +96,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
 Route::prefix('teacher')->name('teacher.')->middleware(['auth', 'role:teacher'])->group(function () {
 
     Route::get('/dashboard', [TeacherDashboard::class, 'index'])->name('dashboard');
-    Route::get('/reports',   [TeacherDashboard::class, 'reports'])->name('reports');
+    Route::get('/reports', [TeacherDashboard::class, 'reports'])->name('reports');
 
     Route::resource('questions', QuestionController::class)->except(['show']);
 
@@ -100,11 +104,11 @@ Route::prefix('teacher')->name('teacher.')->middleware(['auth', 'role:teacher'])
 
     Route::resource('quizzes', TeacherQuizController::class)->except(['destroy']);
     Route::post('quizzes/{quiz}/publish', [TeacherQuizController::class, 'publishResults'])->name('quizzes.publish');
-    Route::get('quizzes/{quiz}/results',  [TeacherQuizController::class, 'results'])->name('quizzes.results');
+    Route::get('quizzes/{quiz}/results', [TeacherQuizController::class, 'results'])->name('quizzes.results');
 
     Route::resource('assignments', TeacherAssignmentController::class)->except(['destroy']);
-    Route::get('assignments/{assignment}/submissions',                     [TeacherAssignmentController::class, 'submissions'])->name('assignments.submissions');
-    Route::get('assignments/{assignment}/submissions/{submission}/grade',  [TeacherAssignmentController::class, 'gradeForm'])->name('assignments.grade.form');
+    Route::get('assignments/{assignment}/submissions', [TeacherAssignmentController::class, 'submissions'])->name('assignments.submissions');
+    Route::get('assignments/{assignment}/submissions/{submission}/grade', [TeacherAssignmentController::class, 'gradeForm'])->name('assignments.grade.form');
     Route::post('assignments/{assignment}/submissions/{submission}/grade', [TeacherAssignmentController::class, 'grade'])->name('assignments.grade');
 
 });
@@ -113,15 +117,15 @@ Route::prefix('teacher')->name('teacher.')->middleware(['auth', 'role:teacher'])
 Route::prefix('student')->name('student.')->middleware(['auth', 'role:student'])->group(function () {
 
     Route::get('/dashboard', [StudentDashboard::class, 'index'])->name('dashboard');
-    Route::get('/results',   [StudentDashboard::class, 'results'])->name('results');
+    Route::get('/results', [StudentDashboard::class, 'results'])->name('results');
 
-    Route::get('/quizzes',                [StudentQuizController::class, 'index'])->name('quizzes.index');
+    Route::get('/quizzes', [StudentQuizController::class, 'index'])->name('quizzes.index');
     Route::get('/quizzes/{quiz}/attempt', [StudentQuizController::class, 'attempt'])->name('quizzes.attempt');
     Route::post('/quizzes/{quiz}/submit', [StudentQuizController::class, 'submit'])->name('quizzes.submit');
-    Route::get('/quizzes/{quiz}/result',  [StudentQuizController::class, 'result'])->name('quizzes.result');
+    Route::get('/quizzes/{quiz}/result', [StudentQuizController::class, 'result'])->name('quizzes.result');
 
-    Route::get('/assignments',                      [StudentAssignmentController::class, 'index'])->name('assignments.index');
-    Route::get('/assignments/{assignment}',         [StudentAssignmentController::class, 'show'])->name('assignments.show');
+    Route::get('/assignments', [StudentAssignmentController::class, 'index'])->name('assignments.index');
+    Route::get('/assignments/{assignment}', [StudentAssignmentController::class, 'show'])->name('assignments.show');
     Route::post('/assignments/{assignment}/submit', [StudentAssignmentController::class, 'submit'])->name('assignments.submit');
 
 });

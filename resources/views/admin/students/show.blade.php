@@ -14,9 +14,9 @@
     <div class="col-md-4">
         <div class="card text-center p-4">
             @if($student->picture)
-    <img src="{{ asset('storage/' . $student->picture) }}" alt="Profile Picture" style="width:100px;height:100px;border-radius:50%;object-fit:cover;">
+    <img src="{{ asset('storage/' . $student->picture) }}" alt="Profile Picture" class="mx-auto d-block" style="width:100px;height:100px;border-radius:50%;object-fit:cover;">
 @else
-    <i class="bi bi-person-circle" style="font-size:4rem;color:#1e3a5f"></i>
+    <i class="bi bi-person-circle mx-auto d-block" style="font-size:4rem;color:#1e3a5f"></i>
 @endif
             <h5 class="mt-2">{{ $student->user->name }}</h5>
             <p class="text-muted mb-1"><code>{{ $student->user->username }}</code></p>
